@@ -46,17 +46,17 @@ interface CryptographyManager {
 
 fun CryptographyManager(): CryptographyManager = CryptographyManagerImpl()
 
+private const val KEY_SIZE = 256
+private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+private const val ENCRYPTION_BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM
+private const val ENCRYPTION_PADDING = KeyProperties.ENCRYPTION_PADDING_NONE
+private const val ENCRYPTION_ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
+
 /**
  * To get an instance of this private CryptographyManagerImpl class, use the top-level function
  * fun CryptographyManager(): CryptographyManager = CryptographyManagerImpl()
  */
 private class CryptographyManagerImpl : CryptographyManager {
-
-    private val KEY_SIZE = 256
-    private val ANDROID_KEYSTORE = "AndroidKeyStore"
-    private val ENCRYPTION_BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM
-    private val ENCRYPTION_PADDING = KeyProperties.ENCRYPTION_PADDING_NONE
-    private val ENCRYPTION_ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
 
     override fun getInitializedCipherForEncryption(keyName: String): Cipher {
         val cipher = getCipher()
@@ -110,7 +110,7 @@ private class CryptographyManagerImpl : CryptographyManager {
 
         val keyGenParams = paramsBuilder.build()
         val keyGenerator = KeyGenerator.getInstance(
-            KeyProperties.KEY_ALGORITHM_AES,
+            ENCRYPTION_ALGORITHM,
             ANDROID_KEYSTORE
         )
         keyGenerator.init(keyGenParams)
