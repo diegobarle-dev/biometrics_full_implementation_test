@@ -70,7 +70,6 @@ class LoginActivity : AppCompatActivity() {
                     BiometricPromptUtils.createPromptPinRequired(
                         this,
                         {
-                            updateMessage(getString(R.string.prompt_pin_required_message))
                             showBiometricPromptForEncryption()
                         },
                         {
@@ -169,6 +168,7 @@ class LoginActivity : AppCompatActivity() {
      */
     private fun onReadyToLogin(authResult: BiometricPrompt.AuthenticationResult) {
         cipherToEncryptOnLogin = authResult.cryptoObject?.cipher
+        updateMessage(getString(R.string.prompt_pin_required_message))
     }
 
     /**
