@@ -1,6 +1,7 @@
 package uk.co.diegobarle.biometrictest.utils
 
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
@@ -44,4 +45,23 @@ object BiometricPromptUtils {
             setConfirmationRequired(false)
             setNegativeButtonText(activity.getString(R.string.prompt_info_use_app_password))
         }.build()
+
+    fun createPromptPinRequired(
+        activity: AppCompatActivity,
+        onPositive: () -> Unit,
+        onNegative: () -> Unit
+    ) =
+        AlertDialog.Builder(activity)
+            .setTitle(activity.getString(R.string.prompt_pin_required_title))
+            .setMessage(activity.getString(R.string.prompt_pin_required_message))
+            .setPositiveButton(
+                activity.getString(R.string.prompt_pin_required_positive_button)
+            ) { _, _ ->
+                onPositive()
+            }
+            .setNegativeButton(activity.getString(R.string.prompt_pin_required_negative_button)) { _, _ ->
+                onNegative()
+            }
+            .create()
+
 }

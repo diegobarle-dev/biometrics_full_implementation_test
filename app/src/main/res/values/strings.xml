@@ -4,9 +4,8 @@
     <string name="username_hint">phone number, email, or username</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
-    <string name="password">Password</string>
+    <string name="pin">Pin</string>
     <string name="btn_login">Login</string>
-    <string name="already_signedin">You are now done with login. Move to your real MainActivity</string>
 
     <string name="secret_key_name">biometric_sample_encryption_key</string>
 
@@ -15,10 +14,16 @@
     <string name="prompt_info_description">Sample App is using Android biometric authentication</string>
     <string name="prompt_info_use_app_password">Use app password</string>
 
+    <string name="prompt_pin_required_title">PIN required</string>
+    <string name="prompt_pin_required_message">You need to login using your PIN in order to continue using Biometrics</string>
+    <string name="prompt_pin_required_positive_button">Use Biometrics</string>
+    <string name="prompt_pin_required_negative_button">Not now</string>
+
     <string name="enable_biometric_login">Enable Biometric Login</string>
     <string name="desc_biometrics_authorization">Enter your login ID and password to confirm activation of Biometric Login.</string>
     <string name="cancel">Cancel</string>
     <string name="btn_authorize">Authorize</string>
 
     <string name="biometric_sample_encryption_key">biometric_sample_encryption_key</string>
+    <string name="use_biometrics">Use biometrics</string>
 </resources>

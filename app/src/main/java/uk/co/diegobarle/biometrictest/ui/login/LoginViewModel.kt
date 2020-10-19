@@ -1,58 +1,34 @@
 package uk.co.diegobarle.biometrictest.ui.login
 
-import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import uk.co.diegobarle.biometrictest.R
 import uk.co.diegobarle.biometrictest.data.*
 
 class LoginViewModel : ViewModel() {
 
-    private val _loginForm = MutableLiveData<LoginFormState>()
-    val loginWithPasswordFormState: LiveData<LoginFormState> = _loginForm
-
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
 
-    fun onLoginDataChanged(username: String, password: String) {
-        if (!isUserNameValid(username)) {
-            _loginForm.value = FailedLoginFormState(usernameError = R.string.invalid_username)
-        } else if (!isPasswordValid(password)) {
-            _loginForm.value = FailedLoginFormState(passwordError = R.string.invalid_password)
-        } else {
-            _loginForm.value = SuccessfulLoginFormState(isDataValid = true)
-        }
+    /**
+     * Here we would be making a call to the server to get the session token
+     */
+    fun loginWithPin(pin: String) {
+        NetworkRepository.updateToken(java.util.UUID.randomUUID().toString())
+        _loginResult.value = LoginResult.SUCCESS
     }
 
-    // A placeholder username validation check
-    private fun isUserNameValid(username: String): Boolean {
-        return if (username.contains('@')) {
-            Patterns.EMAIL_ADDRESS.matcher(username).matches()
+    /**
+     * We use expired tokens as an example of server requesting a login using pin
+     **/
+    fun loginWithToken(token: String) {
+        val success = !NetworkRepository.expiredTokens.contains(token)
+        if (success) {
+            NetworkRepository.updateToken(token)
+            _loginResult.value = LoginResult.SUCCESS
         } else {
-            username.isNotBlank()
+            _loginResult.value = LoginResult.LOGIN_REQUIRE_PIN
         }
-    }
 
-    // A placeholder password validation check
-    private fun isPasswordValid(password: String): Boolean {
-        return password.length > 5
-    }
-
-    fun login(username: String, password: String) {
-        if (isUserNameValid(username) && isPasswordValid(password)) {
-            // Normally this method would asynchronously send this to your server and your sever
-            // would return a token. For high sensitivity apps such as banking, you would keep that
-            // token in transient memory similar to my SampleAppUser object. This way the user
-            // must login each time they start the app.
-            // In this sample, we don't call a server. Instead we use a fake token that we set
-            // right here:
-
-            SampleAppUser.username = username
-            SampleAppUser.fakeToken = java.util.UUID.randomUUID().toString()
-            _loginResult.value = LoginResult(true)
-        } else {
-            _loginResult.value = LoginResult(false)
-        }
     }
 }

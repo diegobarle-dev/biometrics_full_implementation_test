@@ -1,3 +1,6 @@
 package uk.co.diegobarle.biometrictest.data
 
-data class LoginResult(val success: Boolean = false)
+enum class LoginResult {
+    SUCCESS, LOGIN_REQUIRE_PIN
+}
+
