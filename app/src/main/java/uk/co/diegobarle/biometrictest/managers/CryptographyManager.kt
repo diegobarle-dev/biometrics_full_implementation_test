@@ -1,8 +1,10 @@
 package uk.co.diegobarle.biometrictest.managers
 
 import android.content.Context
+import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import androidx.core.content.edit
 import com.google.gson.Gson
 import java.nio.charset.Charset
 import java.security.KeyStore
@@ -41,6 +43,14 @@ interface CryptographyManager {
         mode: Int,
         prefKey: String
     ): CiphertextWrapper?
+
+    fun clearBiometricsKeys(
+        context: Context,
+        filename: String,
+        mode: Int,
+        prefKey: String,
+        secretKeyName: String
+    )
 
 }
 
@@ -106,9 +116,20 @@ private class CryptographyManagerImpl : CryptographyManager {
             setEncryptionPaddings(ENCRYPTION_PADDING)
             setKeySize(KEY_SIZE)
             setUserAuthenticationRequired(true)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                setInvalidatedByBiometricEnrollment(true)
+            }
+
+            //Very few devices have StrongBox available
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//                setIsStrongBoxBacked(true)
+//            }
         }
 
         val keyGenParams = paramsBuilder.build()
+
+        //If we enable StrongBoxBacked, and the device doesn't support it, the following line will thrown
+        //the exception StrongBoxUnavailableException: Failed to generate key
         val keyGenerator = KeyGenerator.getInstance(
             ENCRYPTION_ALGORITHM,
             ANDROID_KEYSTORE
@@ -136,6 +157,20 @@ private class CryptographyManagerImpl : CryptographyManager {
     ): CiphertextWrapper? {
         val json = context.getSharedPreferences(filename, mode).getString(prefKey, null)
         return Gson().fromJson(json, CiphertextWrapper::class.java)
+    }
+
+    override fun clearBiometricsKeys(
+        context: Context,
+        filename: String,
+        mode: Int,
+        prefKey: String,
+        secretKeyName: String
+    ) {
+        context.getSharedPreferences(filename, mode).edit { putString(prefKey, null).apply() }
+        KeyStore.getInstance(ANDROID_KEYSTORE).apply {
+            load(null) // Keystore must be loaded before it can be accessed
+            deleteEntry(secretKeyName)
+        }
     }
 }
 

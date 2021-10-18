@@ -3,6 +3,8 @@ package uk.co.diegobarle.biometrictest.ui.login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.security.keystore.KeyPermanentlyInvalidatedException
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -119,16 +121,27 @@ class LoginActivity : AppCompatActivity() {
     private fun showBiometricPromptForDecryption() {
         cipherTextWrapper?.let { textWrapper ->
             val secretKeyName = getString(R.string.secret_key_name)
-            val cipher = cryptographyManager.getInitializedCipherForDecryption(
-                secretKeyName, textWrapper.initializationVector
-            )
-            biometricPrompt =
-                BiometricPromptUtils.createBiometricPrompt(
-                    this,
-                    ::decryptServerTokenFromStorage
+            try {
+                val cipher = cryptographyManager.getInitializedCipherForDecryption(
+                    secretKeyName, textWrapper.initializationVector
                 )
-            val promptInfo = BiometricPromptUtils.createPromptInfo(this)
-            biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
+                biometricPrompt =
+                    BiometricPromptUtils.createBiometricPrompt(
+                        this,
+                        ::decryptServerTokenFromStorage
+                    )
+                val promptInfo = BiometricPromptUtils.createPromptInfo(this)
+                biometricPrompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
+            }catch (keyException: KeyPermanentlyInvalidatedException){
+                Log.d("BiometricsInit", "Key has been invalidated. Requires biometrics setup.")
+                cryptographyManager.clearBiometricsKeys(
+                    applicationContext,
+                    SHARED_PREFS_FILENAME,
+                    Context.MODE_PRIVATE,
+                    CIPHERTEXT_WRAPPER,
+                    secretKeyName
+                )
+            }
         }
     }
 
